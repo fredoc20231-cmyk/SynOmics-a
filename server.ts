@@ -963,6 +963,14 @@ app.post(['/api/synomics/chem-screening', '/api/biomni/chem-screening'], async (
   } catch (err: any) { res.status(500).json({ status: 'error', message: err.message }); }
 });
 
+// Bayesian optimal experimental design / active learning (closed-loop lab decision layer) — dispatch route.
+app.post(['/api/synomics/experimental-design', '/api/biomni/experimental-design'], async (req, res) => {
+  try {
+    const result = await runPythonScript('server/experimental_design.py', req.body, 120000);
+    res.status(result?.status === 'success' ? 200 : result?.status === 'unavailable' ? 501 : 400).json(result);
+  } catch (err: any) { res.status(500).json({ status: 'error', message: err.message }); }
+});
+
 // Skills System — curated multi-tool workflows (Skills layer).
 app.get(['/api/synomics/skills', '/api/biomni/skills'], (_req, res) => {
   try {

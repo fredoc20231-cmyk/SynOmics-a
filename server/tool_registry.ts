@@ -1904,6 +1904,31 @@ export const TOOL_REGISTRY: ToolSpec[] = [
     handler: (i) => runPythonScript('server/chem_screening.py', { ...i, task: 'diversity_selection' }),
     parameters: { molecules: { type: 'array', required: true, description: '[{name, smiles}] library.' }, nPick: { type: 'number', description: 'How many to select (default 5).' }, seed: { type: 'number', description: 'RNG seed (default 42).' } },
   },
+  // --- Bayesian optimal experimental design / active learning (numpy/scipy) ---
+  {
+    name: 'bayesian_optimal_design', category: 'Experimental design',
+    description: 'Rank candidate next-experiments by expected information gain (EIG) under a Bayesian linear model — the decision layer of a closed-loop self-driving lab. Selects WHICH experiment to run, never predicts its outcome. Requires numpy. Validated: an unexplored design direction beats a redundant one.',
+    handler: (i) => runPythonScript('server/experimental_design.py', { ...i, task: 'bayesian_optimal_design' }),
+    parameters: { candidatePool: { type: 'array', required: true, description: 'Candidates × features design rows.' }, designMatrix: { type: 'array', description: 'Already-run experiments (experiments × features).' }, noiseVariance: { type: 'number', description: 'Observation noise σ² (default 1.0).' }, priorPrecision: { type: 'number', description: 'Gaussian prior precision τ (default 1.0).' } },
+  },
+  {
+    name: 'sequential_active_learning', category: 'Experimental design',
+    description: 'Greedily choose a batch of experiments by iterative max-EIG, updating the posterior after each pick (Sherman–Morrison). Requires numpy. Validated: per-step EIG diminishes, cumulative EIG is monotone.',
+    handler: (i) => runPythonScript('server/experimental_design.py', { ...i, task: 'sequential_active_learning' }),
+    parameters: { candidatePool: { type: 'array', required: true, description: 'Candidates × features.' }, nBatch: { type: 'number', description: 'How many to select (default min(3, pool)).' }, designMatrix: { type: 'array', description: 'Already-run experiments.' }, noiseVariance: { type: 'number', description: 'Observation noise σ² (default 1.0).' }, priorPrecision: { type: 'number', description: 'Prior precision τ (default 1.0).' } },
+  },
+  {
+    name: 'd_optimal_selection', category: 'Experimental design',
+    description: 'Greedy D-optimal subset selection: choose k rows maximizing log det of the information matrix (minimizes the parameter confidence-ellipsoid volume). Requires numpy. Validated: log det increases; picks the orthogonal (independent) direction.',
+    handler: (i) => runPythonScript('server/experimental_design.py', { ...i, task: 'd_optimal_selection' }),
+    parameters: { candidatePool: { type: 'array', required: true, description: 'Candidates × features.' }, k: { type: 'number', required: true, description: 'Number of experiments to select.' }, noiseVariance: { type: 'number', description: 'Observation noise σ² (default 1.0).' }, priorPrecision: { type: 'number', description: 'Prior precision τ (default 1.0).' } },
+  },
+  {
+    name: 'space_filling_design', category: 'Experimental design',
+    description: 'Maximin Latin-Hypercube space-filling design over given bounds for initial screening (scipy.stats.qmc), seeded/reproducible. Requires scipy. Validated: points in-bounds, reproducible, positive spread.',
+    handler: (i) => runPythonScript('server/experimental_design.py', { ...i, task: 'space_filling_design' }),
+    parameters: { nPoints: { type: 'number', required: true, description: 'Number of design points.' }, bounds: { type: 'array', required: true, description: '[[low, high], ...] per design dimension.' }, seed: { type: 'number', description: 'RNG seed (default 42).' } },
+  },
 ];
 
 const BY_NAME = new Map(TOOL_REGISTRY.map((t) => [t.name, t]));

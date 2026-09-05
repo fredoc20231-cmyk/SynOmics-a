@@ -408,7 +408,23 @@ Bridges omics findings into molecular design + rigorous in-silico validation.
   SA≈1.98; catechol flags ≥1 structural alert; aspirin self-Tanimoto=1.0; benzene/
   toluene/phenol collapse to one Murcko scaffold; CMap score flips +0.965/−0.965
   on mimic vs reversed signatures; exact-negation drug tops the reversal screen).
-- 259 real agent tools in `server/tool_registry.ts`; 77 test suites in CI, plus a
+- **Bayesian optimal experimental design wave (real, CI-gated; numpy/scipy — the
+  closed-loop "self-driving lab" DECISION layer):** `experimental_design.py` —
+  `bayesian_optimal_design` (rank candidate next-experiments by expected
+  information gain / D-optimality under a Bayesian linear model),
+  `sequential_active_learning` (greedy batch selection, posterior updated per pick
+  via Sherman–Morrison), `d_optimal_selection` (greedy D-optimal subset maximizing
+  log det of the information matrix), `space_filling_design` (maximin
+  Latin-Hypercube screen via scipy.stats.qmc, seeded). It selects WHICH experiment
+  to run to maximally reduce model uncertainty — it never predicts an assay
+  outcome (zero fabrication). Validated against known math (an unexplored design
+  direction yields the highest EIG; per-step EIG diminishes while cumulative EIG is
+  monotone; D-optimal selection raises log det and picks the orthogonal direction;
+  LHS points are in-bounds, well-spread and seed-reproducible). Honest scope: this
+  is the decision brain of the autonomous-lab loop; the wet-lab actuation
+  (robot / plate-reader hardware) and differentiable-ODE digital twins (need
+  JAX/torch, not installed) remain out of scope and are not faked.
+- 263 real agent tools in `server/tool_registry.ts`; 78 test suites in CI, plus a
   `tsc --noEmit` type-check gate. See `BIOMNI_COMPARISON.md` for the per-domain
   Biomni↔SynOmics coverage table.
 - Everything marked "to build" / "not implemented" above must not be faked.
