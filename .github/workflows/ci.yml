@@ -74,10 +74,10 @@ jobs:
       - name: Production hardening test suite (headers, rate limit, metrics, 404/errors)
         run: npx tsx tests/production_smoke.ts
 
-      - name: Sandbox isolation test suite (Module C: rlimits, env-strip, kill bombs)
+      - name: "Sandbox isolation test suite (Module C: rlimits, env-strip, kill bombs)"
         run: python tests/sandbox_smoke.py
 
-      - name: H5AD profiling gate (Module A: real AnnData structure + HALT-on-ambiguity)
+      - name: "H5AD profiling gate (Module A: real AnnData structure + HALT-on-ambiguity)"
         run: |
           python -m pip install --quiet h5py numpy
           python tests/h5ad_smoke.py
