@@ -1929,6 +1929,25 @@ export const TOOL_REGISTRY: ToolSpec[] = [
     handler: (i) => runPythonScript('server/experimental_design.py', { ...i, task: 'space_filling_design' }),
     parameters: { nPoints: { type: 'number', required: true, description: 'Number of design points.' }, bounds: { type: 'array', required: true, description: '[[low, high], ...] per design dimension.' }, seed: { type: 'number', description: 'RNG seed (default 42).' } },
   },
+  // --- Active-learning loop (stateful self-driving-lab brain; numpy) ---
+  {
+    name: 'propose_next_experiment', category: 'Active learning',
+    description: 'Fit a Bayesian linear model on measured experiments (X, y), report coefficient estimates + uncertainty, and select the next experiment by expected information gain. HALTS for a real measurement — never fabricates an assay outcome. Requires numpy. Validated: recovers true coefficients; awaitingMeasurement=true.',
+    handler: (i) => runPythonScript('server/active_learning_loop.py', { ...i, task: 'propose_next_experiment' }),
+    parameters: { designMatrix: { type: 'array', required: true, description: 'Experiments × features already run.' }, observations: { type: 'array', required: true, description: 'Real measured response per experiment.' }, candidatePool: { type: 'array', required: true, description: 'Candidate next-experiments × features.' }, noiseVariance: { type: 'number', description: 'Observation noise σ² (default 1.0).' }, priorPrecision: { type: 'number', description: 'Prior precision τ (default 1.0).' } },
+  },
+  {
+    name: 'assimilate_measurement', category: 'Active learning',
+    description: 'Append a newly MEASURED (x, y) to the data, refit the Bayesian model, and report realized information gain + posterior-variance reduction. The measured response must be real (caller-supplied). Requires numpy. Validated: fresh direction yields more info gain than a redundant one; trace shrinks.',
+    handler: (i) => runPythonScript('server/active_learning_loop.py', { ...i, task: 'assimilate_measurement' }),
+    parameters: { designMatrix: { type: 'array', required: true, description: 'Prior experiments × features.' }, observations: { type: 'array', required: true, description: 'Prior measured responses.' }, newDesign: { type: 'array', required: true, description: 'Design row of the experiment just run.' }, newObservation: { type: 'number', required: true, description: 'Its REAL measured response.' }, noiseVariance: { type: 'number', description: 'Observation noise σ² (default 1.0).' }, priorPrecision: { type: 'number', description: 'Prior precision τ (default 1.0).' } },
+  },
+  {
+    name: 'loop_convergence', category: 'Active learning',
+    description: 'Stop criterion for the active-learning loop: report whether the maximum predictive uncertainty over a candidate pool has fallen below a tolerance. Requires numpy. Validated: converged under a large tolerance, not converged under a tiny one.',
+    handler: (i) => runPythonScript('server/active_learning_loop.py', { ...i, task: 'loop_convergence' }),
+    parameters: { designMatrix: { type: 'array', required: true, description: 'Experiments × features.' }, observations: { type: 'array', required: true, description: 'Measured responses.' }, candidatePool: { type: 'array', required: true, description: 'Candidates × features.' }, tolerance: { type: 'number', required: true, description: 'Max acceptable predictive std.' }, noiseVariance: { type: 'number', description: 'Observation noise σ² (default 1.0).' }, priorPrecision: { type: 'number', description: 'Prior precision τ (default 1.0).' } },
+  },
 ];
 
 const BY_NAME = new Map(TOOL_REGISTRY.map((t) => [t.name, t]));

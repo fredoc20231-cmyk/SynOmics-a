@@ -424,7 +424,23 @@ Bridges omics findings into molecular design + rigorous in-silico validation.
   is the decision brain of the autonomous-lab loop; the wet-lab actuation
   (robot / plate-reader hardware) and differentiable-ODE digital twins (need
   JAX/torch, not installed) remain out of scope and are not faked.
-- 263 real agent tools in `server/tool_registry.ts`; 78 test suites in CI, plus a
+- **Active-learning loop wave (real, CI-gated; numpy — the stateful self-driving-
+  lab brain, "Part 7"):** `active_learning_loop.py` — `propose_next_experiment`
+  (fit a Bayesian linear model on the measured (X, y) so far, report coefficient
+  estimates + uncertainty, select the next experiment by expected information gain,
+  then HALT with `awaitingMeasurement:true` — it NEVER fabricates an assay
+  outcome), `assimilate_measurement` (append a caller-supplied REAL measurement,
+  refit, report realized information gain + posterior-variance reduction),
+  `loop_convergence` (stop when the max predictive uncertainty over a candidate
+  pool falls below a tolerance). This bridges the design layer to real
+  measurements: the loop advances only on real data. Validated against a known
+  linear ground truth (posterior mean recovers true w=[2,−1]; a fresh design
+  direction yields more realized information gain than a redundant one; posterior
+  trace strictly shrinks on assimilation; convergence flips with the tolerance).
+  Honest scope: the wet-lab actuation (robot / plate reader) is out of scope —
+  the loop produces the plan and stops for the human/instrument to supply the
+  measurement; no outcome is ever invented.
+- 266 real agent tools in `server/tool_registry.ts`; 79 test suites in CI, plus a
   `tsc --noEmit` type-check gate. See `BIOMNI_COMPARISON.md` for the per-domain
   Biomni↔SynOmics coverage table.
 - Everything marked "to build" / "not implemented" above must not be faked.

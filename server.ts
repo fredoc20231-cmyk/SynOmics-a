@@ -971,6 +971,14 @@ app.post(['/api/synomics/experimental-design', '/api/biomni/experimental-design'
   } catch (err: any) { res.status(500).json({ status: 'error', message: err.message }); }
 });
 
+// Active-learning loop (stateful self-driving-lab brain: propose → halt for real measurement → assimilate) — dispatch route.
+app.post(['/api/synomics/active-learning', '/api/biomni/active-learning'], async (req, res) => {
+  try {
+    const result = await runPythonScript('server/active_learning_loop.py', req.body, 120000);
+    res.status(result?.status === 'success' ? 200 : result?.status === 'unavailable' ? 501 : 400).json(result);
+  } catch (err: any) { res.status(500).json({ status: 'error', message: err.message }); }
+});
+
 // Skills System — curated multi-tool workflows (Skills layer).
 app.get(['/api/synomics/skills', '/api/biomni/skills'], (_req, res) => {
   try {
