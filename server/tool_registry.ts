@@ -1998,6 +1998,25 @@ export const TOOL_REGISTRY: ToolSpec[] = [
     handler: (i) => runPythonScript('server/qsar_modeling.py', { ...i, task: 'applicability_domain' }),
     parameters: { trainMolecules: { type: 'array', required: true, description: '[{smiles}] training set.' }, testMolecules: { type: 'array', required: true, description: '[{smiles}] molecules to check.' } },
   },
+  // --- Structured knowledge-base logic compiler (Z3; formal proofs, no LLM extraction) ---
+  {
+    name: 'compile_constraints', category: 'Knowledge logic',
+    description: 'Compile explicit structured relationships (activates/inhibits/requires, optional conditions) into Z3 constraints and check the knowledge base is internally satisfiable. Requires z3-solver. No NL extraction — verdicts are formal SMT proofs. Validated: self-consistent KB → SAT.',
+    handler: (i) => runPythonScript('server/knowledge_logic.py', { ...i, task: 'compile_constraints' }),
+    parameters: { relationships: { type: 'array', required: true, description: '[{source, relation, target, when?, id?}] structured relationships.' } },
+  },
+  {
+    name: 'check_consistency', category: 'Knowledge logic',
+    description: 'Is (knowledge base ∧ observed node states) satisfiable? Returns a satisfying assignment when SAT or the exact minimal UNSAT core when not (Z3). Requires z3-solver. Validated: A→B with A=1,B=0 → INCONSISTENT with a core naming that rule + observation.',
+    handler: (i) => runPythonScript('server/knowledge_logic.py', { ...i, task: 'check_consistency' }),
+    parameters: { relationships: { type: 'array', required: true, description: 'Structured relationships (knowledge base).' }, observations: { type: 'object', required: true, description: 'Measured node states, {node: 0/1} or [{node, state}].' } },
+  },
+  {
+    name: 'detect_novel_discovery', category: 'Knowledge logic',
+    description: 'Treat experimental observations as trusted and find the minimal set of literature relationships they contradict (Z3 UNSAT core) — candidate novel findings, not errors. Proves removing exactly that set restores consistency. Requires z3-solver. Validated: A→B→C with A=1,B=1,C=0 flags exactly "B activates C".',
+    handler: (i) => runPythonScript('server/knowledge_logic.py', { ...i, task: 'detect_novel_discovery' }),
+    parameters: { relationships: { type: 'array', required: true, description: 'Literature knowledge base.' }, observations: { type: 'object', required: true, description: 'Trusted experimental node states.' } },
+  },
 ];
 
 const BY_NAME = new Map(TOOL_REGISTRY.map((t) => [t.name, t]));

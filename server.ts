@@ -995,6 +995,14 @@ app.post(['/api/synomics/qsar', '/api/biomni/qsar'], async (req, res) => {
   } catch (err: any) { res.status(500).json({ status: 'error', message: err.message }); }
 });
 
+// Structured knowledge-base logic compiler (Z3; formal consistency + novel-discovery unsat core) — dispatch route.
+app.post(['/api/synomics/knowledge-logic', '/api/biomni/knowledge-logic'], async (req, res) => {
+  try {
+    const result = await runPythonScript('server/knowledge_logic.py', req.body, 120000);
+    res.status(result?.status === 'success' ? 200 : result?.status === 'unavailable' ? 501 : 400).json(result);
+  } catch (err: any) { res.status(500).json({ status: 'error', message: err.message }); }
+});
+
 // Skills System — curated multi-tool workflows (Skills layer).
 app.get(['/api/synomics/skills', '/api/biomni/skills'], (_req, res) => {
   try {

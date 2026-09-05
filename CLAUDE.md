@@ -469,7 +469,23 @@ Bridges omics findings into molecular design + rigorous in-silico validation.
   noise → CV R²<0.5; an out-of-descriptor-space molecule is flagged out-of-domain).
   This is the "real executed scoring/ML pipeline" Module E requires before any
   property value is reported.
-- 274 real agent tools in `server/tool_registry.ts`; 81 test suites in CI, plus a
+- **Structured knowledge-logic wave (real, CI-gated; Z3 — Phase-1 cognitive layer,
+  SAFE core only):** `knowledge_logic.py` — `compile_constraints` (compile explicit
+  structured relationships activates/inhibits/requires with optional conditions
+  into Z3 constraints; check internal satisfiability), `check_consistency` (is
+  KB ∧ observed states satisfiable? return a model when SAT or the exact minimal
+  UNSAT core when not), `detect_novel_discovery` (treat experimental observations
+  as trusted, extract the minimal set of literature relationships they contradict
+  via the Z3 UNSAT core — candidate novel findings flagged rather than errors, and
+  proves removing exactly that set restores consistency). Every verdict is a formal
+  SMT proof object, not an estimate. Deliberately performs NO natural-language /
+  LLM extraction of axioms (that would violate the zero-hallucination mandate) —
+  relationships must be supplied already-structured by a curator/source. Validated
+  against known logic (self-consistent KB → SAT; A→B with A=1,B=0 → INCONSISTENT
+  with a core naming that rule + observation; A→B→C with trusted A=1,B=1,C=0 flags
+  exactly "B activates C" as novel and proves consistency is restored on removal;
+  inhibits/requires/conditional gating all behave correctly).
+- 277 real agent tools in `server/tool_registry.ts`; 82 test suites in CI, plus a
   `tsc --noEmit` type-check gate. See `BIOMNI_COMPARISON.md` for the per-domain
   Biomni↔SynOmics coverage table.
 - Everything marked "to build" / "not implemented" above must not be faked.
