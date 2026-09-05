@@ -1948,6 +1948,31 @@ export const TOOL_REGISTRY: ToolSpec[] = [
     handler: (i) => runPythonScript('server/active_learning_loop.py', { ...i, task: 'loop_convergence' }),
     parameters: { designMatrix: { type: 'array', required: true, description: 'Experiments × features.' }, observations: { type: 'array', required: true, description: 'Measured responses.' }, candidatePool: { type: 'array', required: true, description: 'Candidates × features.' }, tolerance: { type: 'number', required: true, description: 'Max acceptable predictive std.' }, noiseVariance: { type: 'number', description: 'Observation noise σ² (default 1.0).' }, priorPrecision: { type: 'number', description: 'Prior precision τ (default 1.0).' } },
   },
+  // --- Federated meta-analysis (privacy-preserving cross-site stats; numpy/scipy) ---
+  {
+    name: 'federated_ttest', category: 'Federated analysis',
+    description: 'Pooled two-group Welch t-test from per-site (n, mean, variance) sufficient statistics — raw rows never leave a site. Requires numpy+scipy. Validated: result EXACTLY equals the t-test on the concatenated raw data (to 1e-9).',
+    handler: (i) => runPythonScript('server/federated_meta.py', { ...i, task: 'federated_ttest' }),
+    parameters: { sites: { type: 'array', required: true, description: '[{nA, meanA, varA, nB, meanB, varB}, ...] per-site sufficient statistics.' } },
+  },
+  {
+    name: 'stouffer_meta', category: 'Federated analysis',
+    description: 'Combine per-site z-scores into one Z + p (weighted Stouffer method). Requires numpy+scipy. Validated: four z=2 → combined Z=4.0.',
+    handler: (i) => runPythonScript('server/federated_meta.py', { ...i, task: 'stouffer_meta' }),
+    parameters: { zScores: { type: 'array', required: true, description: 'Per-site z-scores.' }, weights: { type: 'array', description: 'Optional positive per-site weights (e.g. √n).' } },
+  },
+  {
+    name: 'fisher_meta', category: 'Federated analysis',
+    description: "Combine per-site p-values via Fisher's method (−2·Σ ln p ~ χ²₂ₖ). Requires numpy+scipy. Validated: matches scipy.combine_pvalues exactly.",
+    handler: (i) => runPythonScript('server/federated_meta.py', { ...i, task: 'fisher_meta' }),
+    parameters: { pValues: { type: 'array', required: true, description: 'Per-site p-values in (0, 1].' } },
+  },
+  {
+    name: 'random_effects_meta', category: 'Federated analysis',
+    description: 'DerSimonian–Laird random-effects meta-analysis of per-site effect sizes + standard errors → pooled effect, 95% CI, Q, I², τ². Requires numpy+scipy. Validated: identical sites → τ²=0/I²=0/pooled=effect with a tighter CI.',
+    handler: (i) => runPythonScript('server/federated_meta.py', { ...i, task: 'random_effects_meta' }),
+    parameters: { effects: { type: 'array', required: true, description: 'Per-site effect sizes.' }, standardErrors: { type: 'array', required: true, description: 'Per-site standard errors (>0).' } },
+  },
 ];
 
 const BY_NAME = new Map(TOOL_REGISTRY.map((t) => [t.name, t]));

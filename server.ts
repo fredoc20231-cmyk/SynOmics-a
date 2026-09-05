@@ -979,6 +979,14 @@ app.post(['/api/synomics/active-learning', '/api/biomni/active-learning'], async
   } catch (err: any) { res.status(500).json({ status: 'error', message: err.message }); }
 });
 
+// Federated meta-analysis (privacy-preserving cross-site stats; only sufficient statistics leave a site) — dispatch route.
+app.post(['/api/synomics/federated-meta', '/api/biomni/federated-meta'], async (req, res) => {
+  try {
+    const result = await runPythonScript('server/federated_meta.py', req.body, 120000);
+    res.status(result?.status === 'success' ? 200 : result?.status === 'unavailable' ? 501 : 400).json(result);
+  } catch (err: any) { res.status(500).json({ status: 'error', message: err.message }); }
+});
+
 // Skills System — curated multi-tool workflows (Skills layer).
 app.get(['/api/synomics/skills', '/api/biomni/skills'], (_req, res) => {
   try {

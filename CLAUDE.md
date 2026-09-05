@@ -440,7 +440,22 @@ Bridges omics findings into molecular design + rigorous in-silico validation.
   Honest scope: the wet-lab actuation (robot / plate reader) is out of scope —
   the loop produces the plan and stops for the human/instrument to supply the
   measurement; no outcome is ever invented.
-- 266 real agent tools in `server/tool_registry.ts`; 79 test suites in CI, plus a
+- **Federated meta-analysis wave (real, CI-gated; numpy/scipy — the privacy-
+  preserving "federated swarm" core):** `federated_meta.py` — `federated_ttest`
+  (pooled two-group Welch t-test from per-site (n, mean, variance) sufficient
+  statistics — raw rows never leave a site), `stouffer_meta` (weighted Stouffer
+  z-combination), `fisher_meta` (Fisher −2·Σ ln p ~ χ²₂ₖ), `random_effects_meta`
+  (DerSimonian–Laird pooled effect + Q / I² / τ²). Because (n, mean, variance) are
+  sufficient statistics, the federated result is mathematically IDENTICAL to the
+  analysis on the pooled raw data — a real computation, not an approximation, with
+  no raw records shared. Validated against exact references (federated t and p
+  match scipy's Welch t-test on the concatenated raw data to 1e-9; Fisher matches
+  scipy.combine_pvalues; four z=2 → Stouffer Z=4.0; identical sites → τ²=0/I²=0 and
+  a tighter CI than any single site). Honest scope: this is the statistics-only
+  aggregation layer (integrity via the existing `/idiscover/federated-zkp` Pedersen
+  + Schnorr system); general FHE over arbitrary predicates and Ray/GPU petabyte
+  scale-out remain infra-gated and are not faked.
+- 270 real agent tools in `server/tool_registry.ts`; 80 test suites in CI, plus a
   `tsc --noEmit` type-check gate. See `BIOMNI_COMPARISON.md` for the per-domain
   Biomni↔SynOmics coverage table.
 - Everything marked "to build" / "not implemented" above must not be faked.

@@ -5,7 +5,7 @@ SynOmics's **actual, verified** tool registry.
 
 **Sourcing & honesty note (read this):**
 - The **SynOmics** column lists *exact tool names from `server/tool_registry.ts`*
-  (266 tools at time of writing). Every one is backed by a real engine and a
+  (270 tools at time of writing). Every one is backed by a real engine and a
   CI-gated test that checks output against known ground truth — see
   `.github/workflows/ci.yml` and `tests/*`. Nothing here is a "random one-line"
   wrapper; each `✅` links to a named test suite that asserts a correct numeric
@@ -29,13 +29,13 @@ capability with no direct Biomni equivalent.
 | Platform | Registered tools | Data lake | Verification |
 | --- | --- | --- | --- |
 | Biomni (`Biomni-main`, Apache-2.0) | **224** | 76 datasets (~11 GB) + 113 pkgs | broad generalist toolbox; correctness not gated in-repo |
-| **SynOmics** | **266** | egress-gated live DB clients | **every tool CI-gated against ground truth** |
+| **SynOmics** | **270** | egress-gated live DB clients | **every tool CI-gated against ground truth** |
 
 Honest read: **Biomni is broader** — more scientific domains (imaging, pathology,
 physiology, wet-lab), a huge downloadable data lake, and integration with heavy
 external software (docking, folding, scRNA embeddings, R packages, ~200 CLI
 bioinformatics tools). **SynOmics is narrower but harder-verified**: every one of
-its 266 tools runs real code checked against a known numeric answer in CI, and it
+its 270 tools runs real code checked against a known numeric answer in CI, and it
 adds **~24 verifiable-AI / iDiscover engines Biomni has no equivalent for**
 (adversarial validation, causal discovery, Z3 pathway proofs, PDE/circuit gates,
 optimal-transport reversion, federated ZKP). Where Biomni leans on an **LLM to
