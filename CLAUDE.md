@@ -485,7 +485,7 @@ Bridges omics findings into molecular design + rigorous in-silico validation.
   with a core naming that rule + observation; A→B→C with trusted A=1,B=1,C=0 flags
   exactly "B activates C" as novel and proves consistency is restored on removal;
   inhibits/requires/conditional gating all behave correctly).
-- 277 real agent tools in `server/tool_registry.ts`; 82 test suites in CI, plus a
+- 277 real agent tools in `server/tool_registry.ts`; 93 test suites in CI, plus a
   `tsc --noEmit` type-check gate. See `BIOMNI_COMPARISON.md` for the per-domain
   Biomni↔SynOmics coverage table.
 - Everything marked "to build" / "not implemented" above must not be faked.
