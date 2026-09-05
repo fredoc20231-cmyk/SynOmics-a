@@ -987,6 +987,14 @@ app.post(['/api/synomics/federated-meta', '/api/biomni/federated-meta'], async (
   } catch (err: any) { res.status(500).json({ status: 'error', message: err.message }); }
 });
 
+// QSAR / QSPR modeling (RDKit descriptors + scikit-learn; real cross-validated property prediction) — dispatch route.
+app.post(['/api/synomics/qsar', '/api/biomni/qsar'], async (req, res) => {
+  try {
+    const result = await runPythonScript('server/qsar_modeling.py', req.body, 120000);
+    res.status(result?.status === 'success' ? 200 : result?.status === 'unavailable' ? 501 : 400).json(result);
+  } catch (err: any) { res.status(500).json({ status: 'error', message: err.message }); }
+});
+
 // Skills System — curated multi-tool workflows (Skills layer).
 app.get(['/api/synomics/skills', '/api/biomni/skills'], (_req, res) => {
   try {

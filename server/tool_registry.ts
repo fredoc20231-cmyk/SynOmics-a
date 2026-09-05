@@ -1973,6 +1973,31 @@ export const TOOL_REGISTRY: ToolSpec[] = [
     handler: (i) => runPythonScript('server/federated_meta.py', { ...i, task: 'random_effects_meta' }),
     parameters: { effects: { type: 'array', required: true, description: 'Per-site effect sizes.' }, standardErrors: { type: 'array', required: true, description: 'Per-site standard errors (>0).' } },
   },
+  // --- QSAR / QSPR modeling (RDKit descriptors + scikit-learn; real trained models) ---
+  {
+    name: 'descriptor_matrix', category: 'QSAR modeling',
+    description: 'Compute the RDKit physicochemical descriptor table (MW, logP, TPSA, HBD/HBA, rotatable bonds, aromatic rings, FractionCsp3, MR, heavy atoms, rings) for a set of SMILES. Requires RDKit. Validated: MW descriptor matches RDKit; invalid SMILES flagged.',
+    handler: (i) => runPythonScript('server/qsar_modeling.py', { ...i, task: 'descriptor_matrix' }),
+    parameters: { molecules: { type: 'array', required: true, description: '[{smiles}] molecules.' } },
+  },
+  {
+    name: 'qsar_cross_validate', category: 'QSAR modeling',
+    description: 'k-fold cross-validated QSAR/QSPR performance (R²/RMSE/MAE) of a ridge or random-forest model on labeled molecules — the honest reliability estimate. Requires RDKit+scikit-learn. Validated: learnable endpoint → R²>0.9; pure noise → R²<0.5.',
+    handler: (i) => runPythonScript('server/qsar_modeling.py', { ...i, task: 'qsar_cross_validate' }),
+    parameters: { molecules: { type: 'array', required: true, description: '[{smiles, y}] with REAL measured endpoint y.' }, model: { type: 'string', description: "'ridge' or 'rf' (default ridge)." }, cvFolds: { type: 'number', description: 'CV folds (default 5).' } },
+  },
+  {
+    name: 'qsar_predict', category: 'QSAR modeling',
+    description: 'Fit a QSAR model on labeled molecules and predict unlabeled ones, reporting the training CV R² alongside. Predictions come ONLY from the fitted model on real data — no value is fabricated. Requires RDKit+scikit-learn. Validated: returns a real number per molecule.',
+    handler: (i) => runPythonScript('server/qsar_modeling.py', { ...i, task: 'qsar_predict' }),
+    parameters: { trainMolecules: { type: 'array', required: true, description: '[{smiles, y}] labeled training set.' }, predictMolecules: { type: 'array', required: true, description: '[{smiles}] molecules to predict.' }, model: { type: 'string', description: "'ridge' or 'rf' (default ridge)." } },
+  },
+  {
+    name: 'applicability_domain', category: 'QSAR modeling',
+    description: 'Leverage-based applicability-domain check: flag test molecules outside the training descriptor space (predictions there are extrapolations). Requires RDKit. Validated: an out-of-space molecule is flagged out-of-domain.',
+    handler: (i) => runPythonScript('server/qsar_modeling.py', { ...i, task: 'applicability_domain' }),
+    parameters: { trainMolecules: { type: 'array', required: true, description: '[{smiles}] training set.' }, testMolecules: { type: 'array', required: true, description: '[{smiles}] molecules to check.' } },
+  },
 ];
 
 const BY_NAME = new Map(TOOL_REGISTRY.map((t) => [t.name, t]));

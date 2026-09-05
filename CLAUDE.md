@@ -455,7 +455,21 @@ Bridges omics findings into molecular design + rigorous in-silico validation.
   aggregation layer (integrity via the existing `/idiscover/federated-zkp` Pedersen
   + Schnorr system); general FHE over arbitrary predicates and Ray/GPU petabyte
   scale-out remain infra-gated and are not faked.
-- 270 real agent tools in `server/tool_registry.ts`; 80 test suites in CI, plus a
+- **QSAR / QSPR modeling wave (real, CI-gated; RDKit descriptors + scikit-learn —
+  honest property prediction, the anti-fabricator):** `qsar_modeling.py` —
+  `descriptor_matrix` (11 real RDKit physicochemical descriptors),
+  `qsar_cross_validate` (k-fold CV R²/RMSE/MAE of a ridge or random-forest model
+  on labeled molecules — the honest reliability estimate), `qsar_predict` (fit on
+  the caller's REAL labeled data, predict new molecules, report training CV R²
+  alongside), `applicability_domain` (leverage flag for extrapolations). Every
+  prediction comes ONLY from a model fit on the user's real measured endpoint —
+  the exact opposite of a magic-number IC50/activity predictor; with no real
+  labels it errors rather than guesses. Validated against known learnable/
+  unlearnable signal (endpoint = MolWt → CV R²>0.9 and predictions match; pure
+  noise → CV R²<0.5; an out-of-descriptor-space molecule is flagged out-of-domain).
+  This is the "real executed scoring/ML pipeline" Module E requires before any
+  property value is reported.
+- 274 real agent tools in `server/tool_registry.ts`; 81 test suites in CI, plus a
   `tsc --noEmit` type-check gate. See `BIOMNI_COMPARISON.md` for the per-domain
   Biomni↔SynOmics coverage table.
 - Everything marked "to build" / "not implemented" above must not be faked.
